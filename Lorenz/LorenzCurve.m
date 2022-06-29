@@ -2,8 +2,9 @@ clc,clear,close all;
 
 % 从excel中读取数据
 % 读取了所有的产废企业和处理能力的数据
-enterprises = xlsread("data.xlsx", 7,"B3:AT15" );
-production = xlsread("data.xlsx", 7,"B19:AT31" );
+% xlsread("文件路径"，Sheet数，“数据范围”)
+enterprises = xlsread("test.xlsx", 7,"B3:AT15" );
+production = xlsread("test.xlsx", 7,"B19:AT31" );
 
 % 数据预处理
 % 替换产生单位中Nan的为0
@@ -21,6 +22,7 @@ p = enterprises./ax;
 c = production./bx;
 
 % 选择危险废物类型
+% 这里的1为第一列
 hw = 1;
 p_hw = p(:,hw);
 c_hw = c(:,hw);
@@ -37,7 +39,7 @@ c_re = c_hw(index,:);
 x1 = [0; cumsum(p_re)];
 y1 = [0; cumsum(c_re)];
 
-
+% 绘图部分
 % 绘制线条设置
 plot(x1,y1, '-ro',...
     'LineWidth', 1,...
@@ -92,7 +94,7 @@ B=trapz(x1,y1);
 A=trapz(x1,x1-y1);
 G=A/(A+B)
 
-% 高斯拟合
+% 高斯拟合部分
 [xData, yData] = prepareCurveData( x1, y1 );
 
 % 拟合选项
@@ -103,14 +105,16 @@ opts.Lower = [-Inf -Inf 0];
 opts.StartPoint = [1 1 0.130456720945348];
 
 % 拟合结果
+% fitresult为拟合结果
 % gof为拟合检验结果数据
 [fitresult, gof] = fit( xData, yData, ft, opts );
+fitresult
 gof
 
 % 拟合结果绘图
 figure( 'Name', '拟合情况' );
 h = plot( fitresult, xData, yData );
-legend( h, 'y1 vs. x1', 'untitled fit 1', 'Location', 'NorthEast' );
+legend( h, '实际点', '拟合曲线', 'Location', 'NorthEast' );
 
 xlabel x1
 ylabel y1
